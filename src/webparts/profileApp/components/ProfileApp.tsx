@@ -17,7 +17,8 @@ import ReactHtmlParser from 'react-html-parser';
 import {SocialIcon} from 'react-social-icons';
 import { UncontrolledCollapse, Button, CardBody, Card } from 'reactstrap';
 //import Modal from 'react-modal';
-import Modal from 'react-bootstrap/Modal'
+import Modal from 'react-bootstrap/Modal';
+
 
 import ModalForm from './ModalForm';
 
@@ -69,7 +70,8 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
       onHide: false,
       modalBody: "",
       modalId: null,
-      heading: "" 
+      heading: "",
+      editUrl: ""
     };
   }
 
@@ -89,6 +91,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
             modalBody = {this.state.modalBody}
             modalId = {this.state.modalId}
             heading = {this.state.heading}
+            editUrl = {this.state.editUrl}
         />  
      
         {this.state.items.map(function(item,key){ 
@@ -183,8 +186,8 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                 
                                
                                 {item.ExperienceItem.map((company,companyKey)=>{
-                                  var ExperienceModalBody = "<div><iframe src='https://en.m.wikipedia.org/wiki/Canadian_Imperial_Bank_of_Commerce' class='fullheight'/></div>";
-
+                                  var ExperienceModalBody = this.getModalHtml("companyModal",company, companyKey);
+                                  
                                   return(<div key={key}> 
                                       <small> {moment(company.StartDate).format('YYYY MM')} - {moment(company.EndDate).format('YYYY MM')}</small>
 
@@ -225,6 +228,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
 
                   {/* Projects */}
                   <section className="section-wrapper portfolio-section">
+                    
                     <div className="container-fluid">
                       <div className="row">
                         <div className="col-md-12">
@@ -236,21 +240,14 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                       </div>
                       <div className="row">
                         {item.ProjectItem.map((project,projectKey)=>{
-                        
+                          
+
  
                           const isOpen = false;
                           const toggle = () => !isOpen;
                           
-                         
-                          var ProjectModalBody = "<div>" + 
-                                                    "<div id='projectModal" + ReactHtmlParser(projectKey) + "' class='portfolio-thumb'>" + 
-                                                      "<img src='" + project.ProjectScreenShot + "' alt=''></img>" + 
-                                                    "</div>" + 
-                                                    "<p class='project-Description'>" + project.Description+ "</p>" + 
-                                                    "<a href='" + project.ProjectUrl + "'>Project Link</a></br>" + 
-                                                    "<small><a href='" + project.DesignDocumentUrl + "'>Design Document</a></small>" + 
-                                                    "<br></br><small>Languages used: </small> <small class='languages'>" + ReactHtmlParser(project.Languages) +"</small>" + 
-                                                  "</div>";
+                          var ProjectEditUrl = "https://yhsto.sharepoint.com/sites/YHSCompany/Lists/Projects/AllItems.aspx";
+                          var ProjectModalBody = this.getModalHtml("projectModal",project, projectKey);
 
                           return(
                           <div className="col-md-6">
@@ -264,7 +261,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                   <a className="portfolio-item" href={project.ProjectUrl}><h3>{project.Title}</h3></a>
                                   <div className="project-details">
                                     <p id={"toggler" + key}>
-                                      <div className="toggleButton" onClick={e => this.handleShow(e, ProjectModalBody, projectKey, project.Title)}>Details...</div>
+                                      <div className="toggleButton" onClick={e => this.handleShow(e, ProjectModalBody, projectKey, project.Title, ProjectEditUrl)}>Details...</div>
                                       
                                     </p>
 
@@ -281,7 +278,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                   </div>
                                   <div className="projectFooter">
                                     <small><a href={project.DesignDocumentUrl}>Design Document</a></small><br></br>
-                                    <small>Developed for </small><small className="company">{project.Company}</small>
+                                    <div><small>Developed for </small><small className="company">{project.Company}</small></div>
                                   </div>
                                 </div>
                                </div>                  
@@ -401,14 +398,58 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
     );
   }
 
+  public getModalHtml(type, data, dataKey){
+    var modalHtml = "";
+    
 
+    if(type == "projectModal"){
+      var newDescription;
+      var projectUrlHtml;
+      var designDocumentUrlHtml;
+
+      if(data.ProjectScreenShot == null){
+        newDescription = "Not available";
+      }
+      else{
+        newDescription = data.Description;
+      }
+      if(data.ProjectUrl == null){
+        projectUrlHtml = "<small><del>Project Link</del> is unavailable due to Company's policy</small></br>";
+      }
+      else{
+        projectUrlHtml = "<small><a href='" + data.ProjectUrl + "'>Project Link</a></small></br>";
+      }
+      if(data.DesignDocumentUrl == null){
+        designDocumentUrlHtml = "<small><del>Design Document</del> is unavailable due to Company's policy</small></br>";
+      }
+      else{
+        designDocumentUrlHtml = "<small><a href='" + data.DesignDocumentUrl + "'>Design Document</a></small>" ;
+      }
+       modalHtml = "<div>" + 
+                      "<div id='projectModal" + ReactHtmlParser(dataKey) + "' class='portfolio-thumb'>" + 
+                        "<img src='" + data.ProjectScreenShot + "' alt=''></img>" + 
+                      "</div>" + 
+                      "<p class='project-Description'>" + newDescription + "</p>" + 
+                      projectUrlHtml + 
+                      designDocumentUrlHtml + 
+                      "<br></br><small>Languages used: </small> <small class='languages'>" + ReactHtmlParser(data.Languages) +"</small>" + 
+                    "</div>";
+    }
+    else if(type == "companyModal"){
+      modalHtml = "<div>" + 
+                    "<iframe src='https://en.m.wikipedia.org/wiki/Canadian_Imperial_Bank_of_Commerce' class='fullheight'/>" + 
+                  "</div>";
+    }
+    
+    return modalHtml;
+  }
 
   public handleClose() {
     this.setState({onHide: false, show: false});
   }
 
-  public handleShow(e, html, index, headingTitle) {
-    this.setState({ show: true, onHide: true, modalBody: html, modalId: index, heading: headingTitle});
+  public handleShow(e, html, index, headingTitle, editUrl) {
+    this.setState({ show: true, onHide: true, modalBody: html, modalId: index, heading: headingTitle, editUrl: editUrl});
   }
  
   public componentDidMount(){    

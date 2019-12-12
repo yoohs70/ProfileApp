@@ -102,6 +102,9 @@ ul {
     padding    : 0;
     list-style : none;
     }
+del {
+    color: #ffc107;
+}
 
 /*------------------
  * Button Style
@@ -453,6 +456,11 @@ button:focus,
 
 .projectFooter{
     bottom: 0;
+    line-height : 1.0em;
+}
+
+.projectFooter small{
+    line-height : 1.2em;
 }
 
 .react-expand-collapse__content {

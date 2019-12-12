@@ -12,6 +12,7 @@ export interface IModalFormProps {
   modalBody: string;
   modalId: number;
   heading: string;
+  editUrl: string;
 }
 
 export interface IModalFormState {
@@ -58,7 +59,8 @@ export default class ModalForm extends React.Component<IModalFormProps, IAllItem
       onHide: false,
       modalBody: "",
       modalId: null,
-      heading: "" 
+      heading: "" ,
+      editUrl: ""
     }
   }
 
@@ -72,6 +74,8 @@ export default class ModalForm extends React.Component<IModalFormProps, IAllItem
       <Modal show={this.props.show} onHide={ this.handleClose}>
         <Modal.Header closeButton>
           <Modal.Title>{this.props.heading}</Modal.Title>
+          <Button className="glyphicon glyphicon-search" aria-hidden="true" onClick={event =>  window.open(this.props.editUrl)}>Edit</Button>
+
         </Modal.Header>
         <Modal.Body>{ReactHtmlParser(this.props.modalBody)}</Modal.Body>
         <Modal.Footer>

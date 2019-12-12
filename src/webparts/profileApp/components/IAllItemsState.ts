@@ -12,6 +12,7 @@ export interface IAllItemsState {
     modalBody: string;
     modalId: number;
     heading: string;
+    editUrl : string;
 /*     isOpen: boolean; */
 /*     show: boolean; */
 }
