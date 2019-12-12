@@ -9,5 +9,6 @@ export interface IProjectItem{
     DesignDocumentUrl: string;
     Languages: string;
     DesignDocumentDescription: string;
+    ProjectScreenShot: string;
     
 }

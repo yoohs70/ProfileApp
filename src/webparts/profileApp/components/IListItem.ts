@@ -2,6 +2,7 @@ import {IEducationItem} from './IEducationItem';
 import {IExperienceItem} from './IExperienceItem';
 import {ISkillsItem} from './ISkillsItem';
 import {IProjectItem} from './IProjectItem';
+import {ISocialIconItem} from './ISocialIconItem';
 
 export interface IListItem{
     Title: string;
@@ -21,5 +22,5 @@ export interface IListItem{
 
     SkillsItem: ISkillsItem[];
     ProjectItem: IProjectItem[];
-    
+    SocialIconItem: ISocialIconItem[];
 }

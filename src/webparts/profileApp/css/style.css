@@ -320,6 +320,12 @@ button:focus,
     position : sticky;
     top      : 0;
     }
+/*-------------------
+ * Experience Area
+ *-------------------*/
+ .company a{
+    cursor: pointer;
+ }
 
 /*-------------------
  * Social Icon
@@ -440,6 +446,11 @@ button:focus,
 
 }
 
+.portfolio-thumb img{
+    width: 100%;
+    margin-bottom: 20px;
+}
+
 .projectFooter{
     bottom: 0;
 }
@@ -533,12 +544,20 @@ button:focus,
  * Modal
  *-------------------*/
  .Modal {
-    position: absolute;
+/*     position: absolute;
     top: 40px;
     left: 40px;
     right: 40px;
     bottom: 40px;
-    background-color: papayawhip;
+    background-color: rgb(233, 233, 233);
+    
+    border-color: #eaeaea; */
+    max-width: 340px;
+    top: 40px;
+    left: 40px;
+    right: 40px;
+    bottom: 40px;
+    
   }
   .Overlay {
     position: fixed;
@@ -548,32 +567,17 @@ button:focus,
     bottom: 0;
     background-color: rgba(255, 255, 255, 0.493);
   }
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width:100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
+
+  /*-------------------
+ * IFrame
+ *-------------------*/
+ .fullheight{
+    height: 70vh;
+    display: inline-block;
+    margin: 0 auto;
+   width: 100%;
   }
-  
-  .modal-main {
-    position:fixed;
-    background: white;
-    width: 80%;
-    height: auto;
-    top:50%;
-    left:50%;
-    transform: translate(-50%,-50%);
-  }
-  
-  .display-block {
-    display: block;
-  }
-  
-  .display-none {
-    display: none;
-  }
+
 
 /*-------------------
  * Content Item

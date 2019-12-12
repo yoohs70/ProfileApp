@@ -13,10 +13,13 @@ import { SPHttpClient, SPHttpClientResponse, SPHttpClientConfiguration, ISPHttpC
 import '../css/style.css';
 
 import * as moment from 'moment';
-import ReactHtmlParser from 'react-html-parser'
+import ReactHtmlParser from 'react-html-parser';
 import {SocialIcon} from 'react-social-icons';
 import { UncontrolledCollapse, Button, CardBody, Card } from 'reactstrap';
-import Modal from 'react-modal';
+//import Modal from 'react-modal';
+import Modal from 'react-bootstrap/Modal'
+
+import ModalForm from './ModalForm';
 
 const customStyles = {
   content : {
@@ -34,10 +37,9 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
   constructor(props: IProfileAppProps, state: IAllItemsState){
     super(props);
 
-    this.openModal = this.openModal.bind(this);
-    this.afterOpenModal = this.afterOpenModal.bind(this);
-    this.closeModal = this.closeModal.bind(this);
-
+    this.handleClose = this.handleClose.bind(this);
+    this.handleShow = this.handleShow.bind(this);
+    
     this.state = {
       items: [    
         {    
@@ -54,29 +56,47 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
           "ExperienceItem":[],
           "ProfileImage": "",
           "SkillsItem": [],
-          "ProjectItem": []
+          "ProjectItem": [],
+          "SocialIconItem":[]
         }    
       ],
-      isOpen:false,
-      modalIsOpen: false
-      
+      /* isOpen:false,
+      modalIsOpen: false,
+      modalShow: false,
+      modalBody: "",
+      modalId: null */
+      show: false,
+      onHide: false,
+      modalBody: "",
+      modalId: null,
+      heading: "" 
     };
   }
-
-
 
   public render(): React.ReactElement<IProfileAppProps> {
     moment.locale('en');
     /* added */
-  
+    
+    
+   
     return (
       
-      <div>         
+      
+      <div>  
+        <ModalForm 
+            show={this.state.show}
+            onHide={this.state.onHide}
+            modalBody = {this.state.modalBody}
+            modalId = {this.state.modalId}
+            heading = {this.state.heading}
+        />  
+     
         {this.state.items.map(function(item,key){ 
            
             
           return (<div key={key}>  
             <div className="columns-block container">
+              {/* Left Area */}
               <div className="left-col-block blocks">
                 <header className="header theiaStickySidebar">
                   <div className="profile-img">
@@ -94,14 +114,15 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                       </div>
 
                       <ul className="social-icon padding-right">
-                          <li ><SocialIcon url="" network="linkedin"/></li>
-                          <li ><SocialIcon url="" network="facebook"/></li>
-                          <li ><SocialIcon url="" network="instagram" label="My pictures"/></li>
-                          <li ><SocialIcon url="" network="sharethis"/></li>
-                         {/*  "https://www.linkedin.com/in/hyosang-yoo"
-                          "https://www.facebook.com/hyosang.yoo.10" 
-                         "https://goo.gl/photos/MtCpeFTTaNemQCRA7" 
-                          "https://flipboard.com/@yoohs70/yhs-news-q2votbjvy */}
+                        {item.SocialIconItem.map(function(icon,key){
+                          
+
+                          return(
+                              <li key={key}><SocialIcon url={icon.SocialUrl.Url} network={icon.Title}/></li>
+                            
+                          );
+                          
+                        })}
                       </ul>
                   </div>
 
@@ -144,6 +165,8 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                 </header>
 
               </div>
+              
+              {/* Right Area */}
               <div className="right-col-block blocks">
                 <div className="theiaStickySidebar">
 
@@ -158,9 +181,10 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                             <div className="col-md-12">
                               <div className="content-item">
                                 
+                               
+                                {item.ExperienceItem.map((company,companyKey)=>{
+                                  var ExperienceModalBody = "<div><iframe src='https://en.m.wikipedia.org/wiki/Canadian_Imperial_Bank_of_Commerce' class='fullheight'/></div>";
 
-                                {item.ExperienceItem.map((company,key)=>{
-                                    
                                   return(<div key={key}> 
                                       <small> {moment(company.StartDate).format('YYYY MM')} - {moment(company.EndDate).format('YYYY MM')}</small>
 
@@ -168,28 +192,14 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                       
                                       <h4 className="company">
                                         
-                                        <a onClick={this.openModal}>{company.Company}</a></h4>
-
-                                        <Modal
-                                          isOpen={this.state.modalIsOpen}
-                                          onAfterOpen={this.afterOpenModal}
-                                          onRequestClose={this.closeModal}
-                                          style={customStyles}
-                                          className="Modal"
-                                          overlayClassName="Overlay"
-                                          contentLabel="Example Modal"
-                                        >
-                              
-                                          <button onClick={this.closeModal}>close</button>
-                                          <div>I am a modal</div>
-                                          
-                                        </Modal>
-
+                                      <a onClick={e => this.handleShow(e,ExperienceModalBody,companyKey,company.Company)}>{company.Company}</a></h4>
+                      
                                       <div className="project-details">
                                         <p className="toggleButton" id={"dutyToggler" + key}>
                                           Duties...
                                         </p>
 
+                  
                                         <UncontrolledCollapse toggler={"#dutyToggler" + key}>
                                           <Card>
                                             <CardBody>
@@ -203,7 +213,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                     </div>
                                   );
                                   },this)} 
-                                
+        
                               </div>
                             </div>
 
@@ -225,38 +235,49 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                         </div>
                       </div>
                       <div className="row">
-                             
-                        {item.ProjectItem.map(function(project,key){
+                        {item.ProjectItem.map((project,projectKey)=>{
+                        
  
                           const isOpen = false;
                           const toggle = () => !isOpen;
+                          
+                         
+                          var ProjectModalBody = "<div>" + 
+                                                    "<div id='projectModal" + ReactHtmlParser(projectKey) + "' class='portfolio-thumb'>" + 
+                                                      "<img src='" + project.ProjectScreenShot + "' alt=''></img>" + 
+                                                    "</div>" + 
+                                                    "<p class='project-Description'>" + project.Description+ "</p>" + 
+                                                    "<a href='" + project.ProjectUrl + "'>Project Link</a></br>" + 
+                                                    "<small><a href='" + project.DesignDocumentUrl + "'>Design Document</a></small>" + 
+                                                    "<br></br><small>Languages used: </small> <small class='languages'>" + ReactHtmlParser(project.Languages) +"</small>" + 
+                                                  "</div>";
 
                           return(
                           <div className="col-md-6">
                           
                             <div key={key}> 
                               <div className ="portfolio">
-                                <div className="portfolio-thumb">
-                                  <img src="../img/portfolio-1.jpg" alt=""></img>
-                                </div>
+                                
 
                                 <div className="portfolio-info">
                                   
                                   <a className="portfolio-item" href={project.ProjectUrl}><h3>{project.Title}</h3></a>
                                   <div className="project-details">
                                     <p id={"toggler" + key}>
-                                      <div className="toggleButton">Details...</div>
+                                      <div className="toggleButton" onClick={e => this.handleShow(e, ProjectModalBody, projectKey, project.Title)}>Details...</div>
                                       
                                     </p>
 
-                                    <UncontrolledCollapse toggler={"#toggler" + key}>
+                                   
+
+                                    {/* <UncontrolledCollapse toggler={"#toggler" + key}>
                                       <Card>
                                         <CardBody>
                                           <p className="project-Description">{ReactHtmlParser (project.Description)}</p>
                                             <small>Languages used: </small> <small className="languages">{project.Languages}</small>
                                         </CardBody>
                                       </Card>
-                                    </UncontrolledCollapse>
+                                    </UncontrolledCollapse> */}
                                   </div>
                                   <div className="projectFooter">
                                     <small><a href={project.DesignDocumentUrl}>Design Document</a></small><br></br>
@@ -269,7 +290,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                           
                           </div>
                           );
-                        })}
+                        },this)} 
                               
                       </div>
                     </div>
@@ -375,25 +396,21 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
           </div>
           );
         }.bind(this))}
-                
                              
       </div>     
     );
   }
 
-  public openModal(){
-    this.setState({modalIsOpen: true});
+
+
+  public handleClose() {
+    this.setState({onHide: false, show: false});
   }
 
-  public afterOpenModal() {
-    // references are now sync'd and can be accessed.
-    /* this.subtitle.style.color = '#f00'; */
+  public handleShow(e, html, index, headingTitle) {
+    this.setState({ show: true, onHide: true, modalBody: html, modalId: index, heading: headingTitle});
   }
-
-  public closeModal() {
-    this.setState({modalIsOpen: false});
-  }
-
+ 
   public componentDidMount(){    
     var reactHandler = this;  
 
@@ -405,12 +422,13 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
     var projectData;
     var languageData;
     var languages = "";
+    var socialIcons;
 
     
     getListItems("EmployeeList", reactHandler);
 
-    jquery.when(getListItems('EmployeeList', reactHandler), getListItems('Education',reactHandler),getListItems('Experience',reactHandler),getPictureItems('ProfilePictures',reactHandler, "Hyosang Yoo"), getListItems('Skills',reactHandler),getListItems('Projects',reactHandler))
-      .then(function(r1, r2, r3, r4, r5, r6) { // Resolve
+    jquery.when(getListItems('EmployeeList', reactHandler), getListItems('Education',reactHandler),getListItems('Experience',reactHandler),getPictureItems('ProfilePictures',reactHandler, "Hyosang Yoo"), getListItems('Skills',reactHandler),getListItems('Projects',reactHandler), getListItems('SocialIcons',reactHandler))
+      .then(function(r1, r2, r3, r4, r5, r6, r7) { // Resolve
 
         var schools = {};
         // list items from EmployeeList
@@ -427,6 +445,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
         projectData = r6[0].d.results;
         languageData =projectData[0].Languages.results;
     
+        socialIcons = r7[0].d.results;
         /* get picture url */
         var filename = pictureData[0].FileLeafRef  ;
         var dir =  pictureData[0].FileDirRef  ;
@@ -445,7 +464,8 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
         employeeData[0]["ProjectItem"][0]["ProjectUrl"] = projectData[0].ProjectUrl.Url;
         employeeData[0]["ProjectItem"][0]["DesignDocumentUrl"] = projectData[0].DesignDocument.Url;
         employeeData[0]["ProjectItem"][0]["DesignDocumentDescription"] = projectData[0].DesignDocument.Description;
-        
+        employeeData[0]["ProjectItem"][0]["ProjectScreenShot"] = projectData[0].ProjectScreenShot.Url;
+
         jquery.each(projectData, function( index, value ) {
           languageData = value.Languages.results;
           jquery.each(languageData, function( index, value ) {
@@ -455,7 +475,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
 
           languages = "";
         });
-        
+        employeeData[0]["SocialIconItem"] = socialIcons;
         
         reactHandler.setState({    
           items: employeeData
