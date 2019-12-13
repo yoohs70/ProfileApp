@@ -10,5 +10,6 @@ export interface IProjectItem{
     Languages: string;
     DesignDocumentDescription: string;
     ProjectScreenShot: string;
+    GithubUrl: string;
     
 }

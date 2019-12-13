@@ -261,7 +261,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                   <a className="portfolio-item" href={project.ProjectUrl}><h3>{project.Title}</h3></a>
                                   <div className="project-details">
                                     <p id={"toggler" + key}>
-                                      <div className="toggleButton" onClick={e => this.handleShow(e, ProjectModalBody, projectKey, project.Title, ProjectEditUrl)}>Details...</div>
+                                      <div className="toggleButton project-detail" onClick={e => this.handleShow(e, ProjectModalBody, projectKey, project.Title, ProjectEditUrl)}>Details...</div>
                                       
                                     </p>
 
@@ -277,7 +277,11 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
                                     </UncontrolledCollapse> */}
                                   </div>
                                   <div className="projectFooter">
-                                    <small><a href={project.DesignDocumentUrl}>Design Document</a></small><br></br>
+                                    {ReactHtmlParser(this.checkEmptyValue(project.ProjectUrl, "ProjectUrl"))}
+                                    {ReactHtmlParser(this.checkEmptyValue(project.DesignDocumentUrl, "DesignDocumentUrl"))}
+                                    {ReactHtmlParser(this.checkEmptyValue(project.GithubUrl, "GithubUrl"))}
+                                    {/* <small><a href={project.DesignDocumentUrl}>Design Document</a></small><br></br>
+                                    <small><a href={project.GithubUrl}>Source Codes from Github</a></small><br></br> */}
                                     <div><small>Developed for </small><small className="company">{project.Company}</small></div>
                                   </div>
                                 </div>
@@ -397,42 +401,76 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
       </div>     
     );
   }
+ 
+  public checkEmptyValue(dataType, data){
+    var newhtml;
+    
+
+    if(data == "ProjectScreenShot"){
+      if(dataType == null){
+        newhtml = "<p>Screenshot is Not available</p>";
+      }
+      else{
+        newhtml = "<img src='" + dataType + "' alt=''></img>";
+      }
+    }
+    if(data == "Description"){
+      if(dataType == null){
+        newhtml = "<p class='project-Description'>Description is Not available</p>";
+      }
+      else{
+        newhtml = "<p class='project-Description'>" + dataType + "</p>";
+      }
+    }
+    if(data == "ProjectUrl"){
+      if(dataType == null){
+        newhtml = "<small><del>Project Link</del> is unavailable due to Company's policy</small></br>";
+      }
+      else{
+        newhtml = "<small><a href='" + dataType + "'>Project Link</a></small></br>";
+      }
+    }
+    if(data == "DesignDocumentUrl"){
+      if(dataType == null){
+        newhtml = "<small><del>Design Document</del> is unavailable due to Company's policy</small></br>";
+      }
+      else{
+        newhtml = "<small><a href='" + dataType + "'>Design Document</a></small></br>" ;
+      }
+    }
+    if(data == "GithubUrl"){
+      if(dataType == null){
+        newhtml = "<small><del>Sources</del> are unavailable due to Company's policy</small></br>";
+      }
+      else{
+        newhtml = "<small><a href='" + dataType + "'>Download Sources</a></small></br>" ;
+      }
+    }
+    return newhtml;
+  }
 
   public getModalHtml(type, data, dataKey){
     var modalHtml = "";
     
 
     if(type == "projectModal"){
-      var newDescription;
-      var projectUrlHtml;
-      var designDocumentUrlHtml;
+      var screenShotHtml = this.checkEmptyValue(data.ProjectScreenShot, "ProjectScreenShot");
+      var descriptionHtml = this.checkEmptyValue(data.Description, "Description");
+      var projectUrlHtml = this.checkEmptyValue(data.ProjectUrl, "ProjectUrl");
+      var designDocumentUrlHtml = this.checkEmptyValue(data.DesignDocumentUrl,"DesignDocumentUrl");
+      var gitHubUrlHtml= this.checkEmptyValue(data.GithubUrl, "GithubUrl");
 
-      if(data.ProjectScreenShot == null){
-        newDescription = "Not available";
-      }
-      else{
-        newDescription = data.Description;
-      }
-      if(data.ProjectUrl == null){
-        projectUrlHtml = "<small><del>Project Link</del> is unavailable due to Company's policy</small></br>";
-      }
-      else{
-        projectUrlHtml = "<small><a href='" + data.ProjectUrl + "'>Project Link</a></small></br>";
-      }
-      if(data.DesignDocumentUrl == null){
-        designDocumentUrlHtml = "<small><del>Design Document</del> is unavailable due to Company's policy</small></br>";
-      }
-      else{
-        designDocumentUrlHtml = "<small><a href='" + data.DesignDocumentUrl + "'>Design Document</a></small>" ;
-      }
+
        modalHtml = "<div>" + 
                       "<div id='projectModal" + ReactHtmlParser(dataKey) + "' class='portfolio-thumb'>" + 
-                        "<img src='" + data.ProjectScreenShot + "' alt=''></img>" + 
+                      screenShotHtml + 
                       "</div>" + 
-                      "<p class='project-Description'>" + newDescription + "</p>" + 
+                      descriptionHtml + 
                       projectUrlHtml + 
                       designDocumentUrlHtml + 
+                      gitHubUrlHtml +
                       "<br></br><small>Languages used: </small> <small class='languages'>" + ReactHtmlParser(data.Languages) +"</small>" + 
+                      "<div><small>Developed for </small><small class='company'>" + ReactHtmlParser(data.Company) + "</small></div>" +
                     "</div>";
     }
     else if(type == "companyModal"){
@@ -506,6 +544,7 @@ export default class ProfileApp extends React.Component<IProfileAppProps, IAllIt
         employeeData[0]["ProjectItem"][0]["DesignDocumentUrl"] = projectData[0].DesignDocument.Url;
         employeeData[0]["ProjectItem"][0]["DesignDocumentDescription"] = projectData[0].DesignDocument.Description;
         employeeData[0]["ProjectItem"][0]["ProjectScreenShot"] = projectData[0].ProjectScreenShot.Url;
+        employeeData[0]["ProjectItem"][0]["GithubUrl"] = projectData[0].GithubUrl.Url;
 
         jquery.each(projectData, function( index, value ) {
           languageData = value.Languages.results;

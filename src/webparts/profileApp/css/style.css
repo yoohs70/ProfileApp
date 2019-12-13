@@ -476,8 +476,11 @@ button:focus,
  *-------------------*/
 
     .project-details{
-        margin-Bottom: '1rem'; 
+        margin-Bottom: '30px'; 
         cursor: pointer;
+    }
+    .project-detail{
+        margin-Bottom: '30px';
     }
     .toggleButton:hover{
         color: #575555;
